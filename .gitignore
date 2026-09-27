@@ -1,0 +1,8 @@
+node_modules/
+coverage/
+.nyc_output/
+
+# Keep local env secret; encrypted files are intended to be committable
+.env
+.env.*
+!.env.enc
