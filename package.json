@@ -1,6 +1,6 @@
 {
-  "name": "envseal",
-  "version": "1.0.1",
+  "name": "@salimshamim/envseal",
+  "version": "1.0.2",
   "description": "Encrypt/decrypt .env files for safe git transfer",
   "type": "module",
   "scripts": {
