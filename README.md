@@ -1,21 +1,21 @@
-# encryptenv
+# envseal
 Locally Encrypt/Decrypt env files using password
 
 ## Install / Run
-npx encryptenv --pass "masterpass"
+npx envseal --pass "masterpass"
 
 By default:
 - input: .env
 - output: .env.enc
 
 ## Encrypt custom file
-npx encryptenv --pass "masterpass" --in .env.local --out .env.local.enc
+npx envseal --pass "masterpass" --in .env.local --out .env.local.enc
 
 ## Decrypt
-npx encryptenv --decrypt --pass "masterpass" --in .env.enc --out .env
+npx envseal --decrypt --pass "masterpass" --in .env.enc --out .env
 
 ## Overwrite output
-npx encryptenv --pass "masterpass" --force
+npx envseal --pass "masterpass" --force
 
 ## Test
 npm test
