@@ -2,6 +2,10 @@
   "name": "@salimshamim/envseal",
   "version": "1.0.2",
   "description": "Encrypt/decrypt .env files for safe git transfer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/salimshamim/encryptenv"
+  },
   "type": "module",
   "scripts": {
     "test": "mocha \"test/**/*.test.js\"",
