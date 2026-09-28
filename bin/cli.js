@@ -93,19 +93,24 @@ async function fileExists(path) {
 }
 
 program
-  .name("encryptenv")
+  .name("envseal")
   .description("Encrypt/decrypt .env files for safe git transfer")
-  .option("--pass <password>", "Master password")
+  .option("--pass <password>", "Master password (wrap in single quotes '...' in bash to avoid '!' history expansion)")
   .option("--in <path>", "Input file path", ".env")
   .option("--out <path>", "Output file path")
   .option("--decrypt", "Decrypt mode")
   .option("--force", "Overwrite output if it exists", false)
+  .addHelpText(
+    "after",
+    "\nNote on special characters in bash:\n  If your password contains '!', wrap it in single quotes (e.g. --pass 'pass!123').\n  In double quotes, bash treats '!' as history expansion and fails before the CLI runs.\n"
+  )
   .parse(process.argv);
 
 const opts = program.opts();
+const password = opts.pass || process.env.ENVSEAL_PASS;
 
-if (!opts.pass) {
-  console.error("Error: --pass is required");
+if (!password) {
+  console.error("Error: --pass is required (use single quotes '...' in bash if password contains '!')");
   process.exit(1);
 }
 
@@ -122,12 +127,12 @@ try {
   const input = await readFile(inputPath, "utf8");
 
   if (!decryptMode) {
-    const encrypted = encryptString(input, opts.pass);
+    const encrypted = encryptString(input, password);
     await writeFile(outputPath, JSON.stringify(encrypted, null, 2) + "\n", "utf8");
     console.log(`Encrypted ${inputPath} -> ${outputPath}`);
   } else {
     const payload = JSON.parse(input);
-    const decrypted = decryptObject(payload, opts.pass);
+    const decrypted = decryptObject(payload, password);
     await writeFile(outputPath, decrypted, "utf8");
     console.log(`Decrypted ${inputPath} -> ${outputPath}`);
   }
