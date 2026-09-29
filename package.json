@@ -4,7 +4,7 @@
   "description": "Encrypt/decrypt .env files for safe git transfer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/salimshamim/encryptenv"
+    "url": "git+https://github.com/salimshamim/envseal.git"
   },
   "type": "module",
   "scripts": {
