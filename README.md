@@ -32,6 +32,13 @@ npx @salimshamim/envseal --pass 'my!secret@1'
 ```
 > **Why?** In interactive bash, `!` inside double quotes (`"..."`) triggers shell history expansion *before* the CLI even starts, leading to `bash: !...: event not found`.
 
+## Cross-Platform Passwords
+`--pass 'mypass'` means the same thing on Windows `cmd.exe`, PowerShell, and Linux/macOS bash.
+
+Windows `cmd.exe` does not strip surrounding quotes, so they used to become part of the password and encrypted files failed to decrypt on Linux. envseal now strips a matching pair of surrounding single or double quotes, so you can encrypt on one OS and decrypt on another with the exact same command.
+
+Files encrypted with older versions from `cmd.exe` still decrypt correctly.
+
 ## Test
 npm test
 
