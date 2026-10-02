@@ -96,7 +96,7 @@ program
   .name("envseal")
   .description("Encrypt/decrypt .env files for safe git transfer")
   .option("--pass <password>", "Master password (wrap in single quotes '...' in bash to avoid '!' history expansion)")
-  .option("--in <path>", "Input file path", ".env")
+  .option("--in <path>", "Input file path")
   .option("--out <path>", "Output file path")
   .option("--decrypt", "Decrypt mode")
   .option("--force", "Overwrite output if it exists", false)
@@ -115,7 +115,7 @@ if (!password) {
 }
 
 const decryptMode = Boolean(opts.decrypt);
-const inputPath = opts.in;
+const inputPath = opts.in || (decryptMode ? ".env.enc" : ".env");
 const outputPath = opts.out || (decryptMode ? ".env" : ".env.enc");
 
 if (!opts.force && await fileExists(outputPath)) {
@@ -131,7 +131,12 @@ try {
     await writeFile(outputPath, JSON.stringify(encrypted, null, 2) + "\n", "utf8");
     console.log(`Encrypted ${inputPath} -> ${outputPath}`);
   } else {
-    const payload = JSON.parse(input);
+    let payload;
+    try {
+      payload = JSON.parse(input);
+    } catch {
+      throw new Error(`Input file is not valid encrypted JSON. Did you mean --in .env.enc? (got: ${inputPath})`);
+    }
     const decrypted = decryptObject(payload, password);
     await writeFile(outputPath, decrypted, "utf8");
     console.log(`Decrypted ${inputPath} -> ${outputPath}`);

@@ -73,6 +73,25 @@ describe("encryptenv cli", function () {
     });
   });
 
+  it("uses .env.enc as default input in decrypt mode", async function () {
+    await withTempDir(async (cwd) => {
+      const originalEnv = "DEFAULT_INPUT_TEST=ok\n";
+      await writeFile(path.join(cwd, ".env"), originalEnv, "utf8");
+
+      const encResult = runCli(["--pass", TEST_PASS], cwd);
+      assert.equal(encResult.status, 0, encResult.stderr || encResult.stdout);
+
+      const decResult = runCli(
+        ["--decrypt", "--pass", TEST_PASS, "--out", ".env.dec"],
+        cwd
+      );
+
+      assert.equal(decResult.status, 0, decResult.stderr || decResult.stdout);
+      const roundTrip = await readFile(path.join(cwd, ".env.dec"), "utf8");
+      assert.equal(roundTrip, originalEnv);
+    });
+  });
+
   it("fails decryption with wrong password", async function () {
     await withTempDir(async (cwd) => {
       await writeFile(path.join(cwd, ".env"), "SECRET=value\n", "utf8");
