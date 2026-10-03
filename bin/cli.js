@@ -85,6 +85,14 @@ function decryptObject(payload, password) {
   return plain.toString("utf8");
 }
 
+// cmd.exe keeps surrounding quotes in argv while bash/PowerShell strip them, so strip them here to keep passwords identical across shells.
+function normalizePassword(raw) {
+  const wrapped =
+    raw.length > 1 &&
+    ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"')));
+  return wrapped ? raw.slice(1, -1) : raw;
+}
+
 async function fileExists(path) {
   try {
     await access(path);
@@ -188,8 +196,22 @@ try {
     await writeFile(outputPath, JSON.stringify(encrypted, null, 2) + "\n", "utf8");
     console.log(`Encrypted ${inputPath} -> ${outputPath}`);
   } else {
-    const payload = JSON.parse(input);
-    const decrypted = decryptObject(payload, password);
+    let payload;
+    try {
+      payload = JSON.parse(input);
+    } catch {
+      throw new Error(`Input file is not valid encrypted JSON. Did you mean --in .env.enc? (got: ${inputPath})`);
+    }
+
+    let decrypted;
+    try {
+      decrypted = decryptObject(payload, password);
+    } catch (err) {
+      // Files encrypted before quote normalization kept the quotes in the password.
+      if (password === rawPassword) throw err;
+      decrypted = decryptObject(payload, rawPassword);
+    }
+
     await writeFile(outputPath, decrypted, "utf8");
     console.log(`Decrypted ${inputPath} -> ${outputPath}`);
   }
